@@ -1,0 +1,5 @@
+# Arquivo residual de um incidente anterior de git worktree (não faz parte
+# do conteúdo real do framework). O sandbox usado para organizar esta pasta
+# não conseguiu apagar o arquivo (erro de permissão do filesystem local),
+# então ele fica ignorado aqui para nunca ser commitado por engano.
+site-workflow-actions-desativado.yml.txt.unused

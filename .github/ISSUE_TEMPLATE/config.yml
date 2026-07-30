@@ -1,0 +1,13 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📚 Documentação
+    url: ../../PDLC-Guide
+    about: Leia a documentação e os guias do Framework .Bob
+  - name: 💬 Discussões
+    url: https://github.com/SEU_USUARIO/SEU_REPOSITORIO/discussions
+    about: Faça perguntas e discuta ideias com a comunidade
+  - name: 🔒 Problema de Segurança
+    url: https://github.com/SEU_USUARIO/SEU_REPOSITORIO/security/advisories/new
+    about: Reporte uma vulnerabilidade de segurança (privado)
+
+# Feito com Bob

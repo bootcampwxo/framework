@@ -1,0 +1,13 @@
+# Notas de Conformidade
+
+## Achado
+- ...
+
+## Risco
+- ...
+
+## Remediação recomendada
+- ...
+
+## Evidência necessária / próxima ação
+- ...

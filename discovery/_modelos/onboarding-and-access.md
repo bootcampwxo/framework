@@ -1,0 +1,16 @@
+# Onboarding & Acesso — <CHAVE_DO_ITEM>
+
+## Acesso a sistemas necessário
+- ...
+
+## Checklist de provisionamento de ferramentas
+- [ ] ...
+
+## Cronograma de onboarding
+- ...
+
+## Necessidades de treinamento
+- ...
+
+## Recursos de documentação
+- ...
