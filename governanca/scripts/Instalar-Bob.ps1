@@ -178,6 +178,37 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
         Write-Host "AVISO: $SkillsSrc não encontrado no espelho -- pulando instalação de skills."
     }
 
+    # Remove o atributo somente-leitura / restrição de ACL de uma instalação
+    # anterior, para o Copy-Item abaixo não falhar -- best-effort, nunca
+    # derruba o script (erros de icacls/atributo são ignorados).
+    function Unlock-BobFile {
+        param([string]$Path)
+        if (Test-Path $Path) {
+            try { Set-ItemProperty -Path $Path -Name IsReadOnly -Value $false -ErrorAction SilentlyContinue } catch {}
+            try { icacls $Path /reset 2>$null | Out-Null } catch {}
+        }
+    }
+
+    # Trava o arquivo como somente leitura para o usuário atual, mantendo
+    # SYSTEM/Administrators com controle total (para não travar o próprio
+    # SO). IMPORTANTE: isso é um deterrente, não uma barreira de segurança
+    # absoluta -- se o usuário for administrador local da máquina, ele
+    # sempre pode rodar "icacls /reset" e editar de novo. Em máquina
+    # corporativa onde o usuário NÃO é admin local, essa restrição via ACL
+    # é uma proteção real (diferente do atributo "somente leitura" sozinho,
+    # que qualquer um desmarca pelo Explorer).
+    function Lock-BobFile {
+        param([string]$Path)
+        if (-not (Test-Path $Path)) { return }
+        try { Set-ItemProperty -Path $Path -Name IsReadOnly -Value $true -ErrorAction SilentlyContinue } catch {}
+        try {
+            icacls $Path /inheritance:r 2>$null | Out-Null
+            icacls $Path /grant:r "$($env:USERNAME):(R)" 2>$null | Out-Null
+            icacls $Path /grant:r "SYSTEM:(F)" 2>$null | Out-Null
+            icacls $Path /grant:r "Administrators:(F)" 2>$null | Out-Null
+        } catch {}
+    }
+
     $ModerationSrc = Join-Path $TmpDir "governanca\bob-moderation"
     if (Test-Path $ModerationSrc) {
         Write-Host "==> Instalando bloqueio ativo de conteúdo (bob-moderation) em $BobHome"
@@ -191,9 +222,14 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
         New-Item -ItemType Directory -Force -Path (Join-Path $BobHome "reports") | Out-Null
         New-Item -ItemType Directory -Force -Path (Join-Path $BobHome "db") | Out-Null
 
+        $ModRuleDestFile = Join-Path $ModRulesDest "moderation.md"
+        Unlock-BobFile -Path $ModRuleDestFile
+        Get-ChildItem -Path $ModConfigDest -File -ErrorAction SilentlyContinue | ForEach-Object { Unlock-BobFile -Path $_.FullName }
+        Get-ChildItem -Path $ModScriptsDest -File -ErrorAction SilentlyContinue | ForEach-Object { Unlock-BobFile -Path $_.FullName }
+
         $ModRuleFile = Join-Path $ModerationSrc "rules\moderation.md"
         if (Test-Path $ModRuleFile) {
-            Copy-Item -Path $ModRuleFile -Destination (Join-Path $ModRulesDest "moderation.md") -Force
+            Copy-Item -Path $ModRuleFile -Destination $ModRuleDestFile -Force
         }
         $ModConfigSrc = Join-Path $ModerationSrc "config"
         if (Test-Path $ModConfigSrc) {
@@ -207,7 +243,12 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
                 Copy-Item -Path $_.FullName -Destination $ModScriptsDest -Recurse -Force
             }
         }
-        Write-Host "    OK: regra de moderação + config + scripts instalados."
+
+        Lock-BobFile -Path $ModRuleDestFile
+        Get-ChildItem -Path $ModConfigDest -File -ErrorAction SilentlyContinue | ForEach-Object { Lock-BobFile -Path $_.FullName }
+        Get-ChildItem -Path $ModScriptsDest -File -ErrorAction SilentlyContinue | ForEach-Object { Lock-BobFile -Path $_.FullName }
+
+        Write-Host "    OK: regra de moderação + config + scripts instalados (somente leitura)."
         Write-Host "    Os scripts de monitoramento são bash (.sh) -- rode via WSL/Git Bash:"
         Write-Host "      bash $ModScriptsDest\content-monitor.sh"
         Write-Host "    Este instalador não agenda tarefa automática no Windows (sem cron nativo)."

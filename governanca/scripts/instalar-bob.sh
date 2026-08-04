@@ -146,6 +146,13 @@ if [ -d "$MODERATION_SRC" ]; then
   echo "==> Instalando bloqueio ativo de conteúdo (bob-moderation) em $BOB_HOME"
   mkdir -p "$BOB_HOME/rules" "$BOB_HOME/config" "$BOB_HOME/scripts" "$BOB_HOME/logs" "$BOB_HOME/reports" "$BOB_HOME/db"
 
+  # Restaura permissão de escrita antes de copiar -- necessário para que
+  # rodar este instalador de novo (atualização) não falhe por causa do
+  # somente-leitura aplicado no final desta seção numa instalação anterior.
+  chmod u+w "$BOB_HOME/rules/moderation.md" 2>/dev/null || true
+  find "$BOB_HOME/config" -maxdepth 1 -type f -exec chmod u+w {} \; 2>/dev/null || true
+  find "$BOB_HOME/scripts" -maxdepth 1 -type f -exec chmod u+w {} \; 2>/dev/null || true
+
   if [ -f "$MODERATION_SRC/rules/moderation.md" ]; then
     cp "$MODERATION_SRC/rules/moderation.md" "$BOB_HOME/rules/moderation.md"
   fi
@@ -156,7 +163,20 @@ if [ -d "$MODERATION_SRC" ]; then
     cp -R "$MODERATION_SRC/scripts/." "$BOB_HOME/scripts/"
     chmod +x "$BOB_HOME/scripts/"*.sh 2>/dev/null || true
   fi
-  echo "    OK: regra de moderação + config + scripts instalados."
+
+  # Bloqueia edição pelo usuário: regra, config e scripts viram somente
+  # leitura (scripts mantêm o bit de execução, senão o cron/monitoramento
+  # para de funcionar). IMPORTANTE: isso é um deterrente, não uma barreira
+  # de segurança absoluta -- como o próprio usuário é dono de ~/.bob, ele
+  # sempre pode rodar "chmod u+w" de novo e editar. Protege contra edição
+  # casual/acidental, não contra alguém com acesso de shell disposto a
+  # reverter a permissão.
+  chmod 444 "$BOB_HOME/rules/moderation.md" 2>/dev/null || true
+  find "$BOB_HOME/config" -maxdepth 1 -type f -exec chmod 444 {} \; 2>/dev/null || true
+  find "$BOB_HOME/scripts" -maxdepth 1 -type f -name "*.sh" -exec chmod 555 {} \; 2>/dev/null || true
+  find "$BOB_HOME/scripts" -maxdepth 1 -type f ! -name "*.sh" -exec chmod 444 {} \; 2>/dev/null || true
+
+  echo "    OK: regra de moderação + config + scripts instalados (somente leitura)."
 
   # Agenda o monitoramento no cron, se disponível -- best-effort: sob
   # set -e, uma falha aqui (ex.: sem permissão de escrita em
