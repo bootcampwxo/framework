@@ -60,12 +60,10 @@ try {
         throw "git clone falhou (código de saída $LASTEXITCODE). Verifique sua conexão com github.com."
     }
 
-    # -Force é necessário mesmo com core.hideDotFiles=false desabilitado no
-    # clone, como segunda camada de proteção contra qualquer atributo
-    # Hidden/System pré-existente (ex.: definido por antivírus, política de
-    # grupo, ou uma instalação anterior) -- sem -Force, Test-Path pode não
-    # enxergar itens ocultos.
-    if (-not (Test-Path -Force (Join-Path $TmpDir ".bob"))) {
+    # Test-Path não tem parâmetro -Force (isso existe em Get-ChildItem/
+    # Copy-Item, não aqui) -- o que de fato resolve o atributo Hidden é o
+    # --config core.hideDotFiles=false já passado acima no git clone.
+    if (-not (Test-Path (Join-Path $TmpDir ".bob"))) {
         throw "O clone terminou mas não parece ter o conteúdo esperado (.bob ausente)."
     }
 
