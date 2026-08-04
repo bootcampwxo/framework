@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+# instalar-bob.sh — instalação automatizada de estação do Framework .Bob
+# (macOS/Linux)
+#
+# O que este script faz (rode uma vez por máquina de desenvolvedor):
+#   1. Clona o espelho público do framework (bootcampwxo/framework) num
+#      diretório temporário — sem autenticação, funciona de qualquer rede.
+#   2. Instala os 12 modos (custom_modes.yaml) em ~/.bob/settings/ — nunca
+#      sobrescreve às cegas: se já existir um arquivo lá, tenta mesclar com
+#      segurança (usando python3, se disponível) ou faz backup antes de
+#      sobrescrever.
+#   3. Guarda uma cópia do esqueleto "por projeto" em
+#      ~/.bob/templates/desenvolvimento/, para uso pelo script irmão
+#      bob-novo-projeto.sh.
+#
+# O que este script NÃO faz:
+#   - Não instala o bloqueio ativo de conteúdo (bob-moderation). Esse
+#     sistema não é publicado no espelho público de propósito (contém uma
+#     lista de termos bloqueados — publicá-la destruiria a utilidade dela
+#     como controle de segurança). Se sua organização usa isso, instale a
+#     partir do repositório interno correspondente.
+#
+# Uso (repositório já clonado localmente):
+#   ./instalar-bob.sh
+#
+# Uso (direto da URL, sem clonar nada antes — mesmo efeito):
+#   curl -fsSL https://raw.githubusercontent.com/bootcampwxo/framework/main/governanca/scripts/instalar-bob.sh | bash
+#
+# Este script não depende de estar rodando a partir de uma cópia local do
+# repositório — ele mesmo clona o que precisa num diretório temporário. Por
+# isso funciona igual rodado via `curl | bash` ou a partir do arquivo local.
+
+set -euo pipefail
+
+MIRROR_URL="https://github.com/bootcampwxo/framework.git"
+MIRROR_RAW_BASE="https://raw.githubusercontent.com/bootcampwxo/framework/main"
+BOB_HOME="$HOME/.bob"
+SETTINGS_DIR="$BOB_HOME/settings"
+TEMPLATES_DIR="$BOB_HOME/templates/desenvolvimento"
+TMP_DIR="$(mktemp -d)"
+CLONE_LOG="$(mktemp)"
+
+cleanup() {
+  rm -rf "$TMP_DIR" "$CLONE_LOG" 2>/dev/null || true
+}
+trap cleanup EXIT
+
+echo "==> Clonando o espelho público do Framework .Bob ($MIRROR_URL)..."
+if ! git clone --quiet --depth 1 "$MIRROR_URL" "$TMP_DIR/framework" >"$CLONE_LOG" 2>&1; then
+  echo "ERRO: não foi possível clonar $MIRROR_URL"
+  echo "Saída do git:"
+  cat "$CLONE_LOG"
+  exit 1
+fi
+
+if [ ! -d "$TMP_DIR/framework/.bob" ]; then
+  echo "ERRO: o clone terminou mas não parece ter o conteúdo esperado (.bob/ ausente)."
+  exit 1
+fi
+
+echo "==> Instalando os 12 modos em $SETTINGS_DIR/custom_modes.yaml"
+mkdir -p "$SETTINGS_DIR"
+
+NEW_MODES="$TMP_DIR/framework/governanca/custom_modes.yaml"
+DEST_MODES="$SETTINGS_DIR/custom_modes.yaml"
+
+if [ ! -f "$NEW_MODES" ]; then
+  echo "ERRO: $NEW_MODES não encontrado no espelho — o espelho pode estar desatualizado ou incompleto."
+  exit 1
+fi
+
+merge_ok=false
+if [ -f "$DEST_MODES" ]; then
+  if command -v python3 >/dev/null 2>&1 && python3 -c "import yaml" >/dev/null 2>&1; then
+    echo "    Já existe um custom_modes.yaml em $DEST_MODES — mesclando com segurança (python3 + PyYAML disponíveis)."
+    if python3 - "$DEST_MODES" "$NEW_MODES" <<'PYEOF'
+import sys, yaml, shutil, datetime
+
+dest_path, new_path = sys.argv[1], sys.argv[2]
+
+with open(dest_path, encoding="utf-8") as fh:
+    dest = yaml.safe_load(fh) or {"customModes": []}
+with open(new_path, encoding="utf-8") as fh:
+    new = yaml.safe_load(fh)
+
+dest_modes = dest.get("customModes", []) or []
+dest_slugs = {m["slug"] for m in dest_modes}
+new_modes = new["customModes"]
+
+conflicts = [m["slug"] for m in new_modes if m["slug"] in dest_slugs]
+if conflicts:
+    backup = f"{dest_path}.backup-{datetime.datetime.now():%Y%m%d%H%M%S}"
+    shutil.copy(dest_path, backup)
+    print(f"    Slugs já existentes encontrados ({', '.join(conflicts)}) — "
+          f"substituindo pela versão nova do framework nesses slugs. "
+          f"Backup do arquivo original salvo em {backup}.")
+    dest_modes = [m for m in dest_modes if m["slug"] not in conflicts]
+
+dest_modes.extend(new_modes)
+dest["customModes"] = dest_modes
+
+with open(dest_path, "w", encoding="utf-8") as fh:
+    yaml.dump(dest, fh, allow_unicode=True, default_flow_style=False, sort_keys=False, width=1000)
+
+print(f"    OK: {len(new_modes)} modo(s) do framework mesclado(s) em {dest_path} "
+      f"(total agora: {len(dest_modes)} modo(s)).")
+PYEOF
+    then
+      merge_ok=true
+    else
+      echo "    AVISO: a mesclagem via python3 falhou — caindo para backup + substituição total."
+    fi
+  fi
+
+  if [ "$merge_ok" = false ]; then
+    BACKUP="$DEST_MODES.backup-$(date +%Y%m%d%H%M%S)"
+    echo "    Já existe um custom_modes.yaml em $DEST_MODES (python3/PyYAML indisponível ou mesclagem falhou)."
+    echo "    Fazendo backup em $BACKUP e SUBSTITUINDO o arquivo inteiro — se você tinha"
+    echo "    modos customizados próprios além dos 12 do framework, recupere-os do backup"
+    echo "    e adicione manualmente ao novo arquivo."
+    cp "$DEST_MODES" "$BACKUP"
+    cp "$NEW_MODES" "$DEST_MODES"
+  fi
+else
+  cp "$NEW_MODES" "$DEST_MODES"
+  echo "    OK: nenhum arquivo existia antes — instalado do zero."
+fi
+
+echo "==> Guardando o esqueleto de projeto em $TEMPLATES_DIR"
+rm -rf "$TEMPLATES_DIR"
+mkdir -p "$TEMPLATES_DIR"
+
+# Copia tudo do espelho, exceto .git/ e a pasta governanca/ (essa só existe
+# para dar suporte a este instalador, não faz parte do esqueleto por
+# projeto que o comando bob-novo-projeto vai copiar depois).
+( cd "$TMP_DIR/framework" && find . -mindepth 1 -maxdepth 1 ! -name ".git" ! -name "governanca" -exec cp -R {} "$TEMPLATES_DIR/" \; )
+
+echo ""
+echo "Instalação concluída."
+echo ""
+echo "Confira no seletor de modos da sua IDE: devem aparecer os 12 modos do"
+echo "Framework .Bob, incluindo 🔮 Oráculo (reinicie a IDE se necessário)."
+echo ""
+echo "Para criar um projeto novo a partir do esqueleto cacheado, rode (no"
+echo "diretório onde o novo projeto deve nascer):"
+echo "  curl -fsSL $MIRROR_RAW_BASE/governanca/scripts/bob-novo-projeto.sh | bash -s -- <nome-do-projeto>"
+echo ""
+echo "Bloqueio ativo de conteúdo (bob-moderation) NÃO foi instalado por este"
+echo "script — esse sistema não é publicado no espelho público de propósito."
+echo "Se sua organização usa isso, instale a partir do repositório interno."
