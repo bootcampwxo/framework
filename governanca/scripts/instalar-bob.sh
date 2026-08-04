@@ -9,9 +9,14 @@
 #      sobrescreve às cegas: se já existir um arquivo lá, tenta mesclar com
 #      segurança (usando python3, se disponível) ou faz backup antes de
 #      sobrescrever.
-#   3. Guarda uma cópia do esqueleto "por projeto" em
-#      ~/.bob/templates/desenvolvimento/, para uso pelo script irmão
-#      bob-novo-projeto.sh.
+#   3. Instala as 10 skills (playbooks) em ~/.bob/skills/ — Global,
+#      confirmado por teste real numa máquina em uso (04/08/2026): skills
+#      são reconhecidas pelo Bob-IDE nesse escopo, diferente de
+#      rules/rules-<papel>, que continuam por projeto (ver item 4).
+#   4. Guarda uma cópia do esqueleto "por projeto" em
+#      ~/.bob/templates/desenvolvimento/ (regras universais, perfis de
+#      papel, pastas de artefato — SEM as skills, já instaladas globalmente
+#      no passo 3), para uso pelo script irmão bob-novo-projeto.sh.
 #
 # O que este script NÃO faz:
 #   - Não instala o bloqueio ativo de conteúdo (bob-moderation). Esse
@@ -126,6 +131,16 @@ else
   echo "    OK: nenhum arquivo existia antes — instalado do zero."
 fi
 
+SKILLS_SRC="$TMP_DIR/framework/.bob/skills"
+SKILLS_DEST="$BOB_HOME/skills"
+if [ -d "$SKILLS_SRC" ]; then
+  echo "==> Instalando as 10 skills em $SKILLS_DEST (Global)"
+  mkdir -p "$SKILLS_DEST"
+  cp -R "$SKILLS_SRC/." "$SKILLS_DEST/"
+else
+  echo "AVISO: $SKILLS_SRC não encontrado no espelho — pulando instalação de skills."
+fi
+
 echo "==> Guardando o esqueleto de projeto em $TEMPLATES_DIR"
 rm -rf "$TEMPLATES_DIR"
 mkdir -p "$TEMPLATES_DIR"
@@ -135,11 +150,17 @@ mkdir -p "$TEMPLATES_DIR"
 # projeto que o comando bob-novo-projeto vai copiar depois).
 ( cd "$TMP_DIR/framework" && find . -mindepth 1 -maxdepth 1 ! -name ".git" ! -name "governanca" -exec cp -R {} "$TEMPLATES_DIR/" \; )
 
+# .bob/skills/ já foi instalado Global no passo anterior -- remove do
+# esqueleto por projeto pra não duplicar (e não gerar confusão sobre qual
+# cópia é "a de verdade").
+rm -rf "$TEMPLATES_DIR/.bob/skills"
+
 echo ""
 echo "Instalação concluída."
 echo ""
 echo "Confira no seletor de modos da sua IDE: devem aparecer os 12 modos do"
 echo "Framework .Bob, incluindo 🔮 Oráculo (reinicie a IDE se necessário)."
+echo "As 10 skills também já estão disponíveis globalmente em $SKILLS_DEST."
 echo ""
 echo "Para criar um projeto novo a partir do esqueleto cacheado, rode (no"
 echo "diretório onde o novo projeto deve nascer):"

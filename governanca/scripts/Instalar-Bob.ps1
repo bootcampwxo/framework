@@ -10,9 +10,15 @@
        %USERPROFILE%\.bob\settings\ -- nunca sobrescreve às cegas: se já
        existir um arquivo lá, tenta mesclar com segurança (usando Python,
        se disponível) ou faz backup antes de sobrescrever.
-    3. Guarda uma cópia do esqueleto "por projeto" em
-       %USERPROFILE%\.bob\templates\desenvolvimento\, para uso pelo script
-       irmão Bob-NovoProjeto.ps1.
+    3. Instala as 10 skills (playbooks) em %USERPROFILE%\.bob\skills\ --
+       Global, confirmado por teste real numa máquina em uso (04/08/2026):
+       skills são reconhecidas pelo Bob-IDE nesse escopo, diferente de
+       rules/rules-<papel>, que continuam por projeto (ver item 4).
+    4. Guarda uma cópia do esqueleto "por projeto" em
+       %USERPROFILE%\.bob\templates\desenvolvimento\ (regras universais,
+       perfis de papel, pastas de artefato -- SEM as skills, já instaladas
+       globalmente no passo 3), para uso pelo script irmão
+       Bob-NovoProjeto.ps1.
 
   NÃO instala o bloqueio ativo de conteúdo (bob-moderation). Esse sistema
   não é publicado no espelho público de propósito (contém uma lista de
@@ -156,6 +162,18 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
         Write-Host "    OK: nenhum arquivo existia antes -- instalado do zero."
     }
 
+    $SkillsSrc = Join-Path $TmpDir ".bob\skills"
+    $SkillsDest = Join-Path $BobHome "skills"
+    if (Test-Path $SkillsSrc) {
+        Write-Host "==> Instalando as 10 skills em $SkillsDest (Global)"
+        New-Item -ItemType Directory -Force -Path $SkillsDest | Out-Null
+        Get-ChildItem -Path $SkillsSrc -Force | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination $SkillsDest -Recurse -Force
+        }
+    } else {
+        Write-Host "AVISO: $SkillsSrc não encontrado no espelho -- pulando instalação de skills."
+    }
+
     Write-Host "==> Guardando o esqueleto de projeto em $TemplatesDir"
     if (Test-Path $TemplatesDir) {
         Remove-Item -Recurse -Force $TemplatesDir
@@ -166,11 +184,20 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
         Copy-Item -Path $_.FullName -Destination $TemplatesDir -Recurse -Force
     }
 
+    # .bob/skills já foi instalado Global acima -- remove do esqueleto por
+    # projeto pra não duplicar (e não gerar confusão sobre qual cópia é "a
+    # de verdade").
+    $TemplateSkills = Join-Path $TemplatesDir ".bob\skills"
+    if (Test-Path $TemplateSkills) {
+        Remove-Item -Recurse -Force $TemplateSkills
+    }
+
     Write-Host ""
     Write-Host "Instalação concluída."
     Write-Host ""
     Write-Host "Confira no seletor de modos da sua IDE: devem aparecer os 12 modos do"
     Write-Host "Framework .Bob, incluindo Oráculo (reinicie a IDE se necessário)."
+    Write-Host "As 10 skills também já estão disponíveis globalmente em $SkillsDest."
     Write-Host ""
     Write-Host "Para criar um projeto novo a partir do esqueleto cacheado, rode (no"
     Write-Host "diretório onde o novo projeto deve nascer):"
