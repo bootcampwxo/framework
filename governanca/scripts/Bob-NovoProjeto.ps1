@@ -53,7 +53,13 @@ if (Test-Path $NomeDoProjeto) {
 
 Write-Host "==> Criando $NomeDoProjeto\ a partir do esqueleto cacheado"
 New-Item -ItemType Directory -Path $NomeDoProjeto | Out-Null
-Copy-Item -Path (Join-Path $TemplateDir "*") -Destination $NomeDoProjeto -Recurse -Force
+# Copy-Item com "*" (wildcard) nem sempre inclui itens ocultos (.bob,
+# .github, .gitignore, .editorconfig) dependendo da versão do PowerShell e
+# de atributos Hidden/System herdados do clone -- enumerar com
+# Get-ChildItem -Force garante que nada seja silenciosamente ignorado.
+Get-ChildItem -Path $TemplateDir -Force | ForEach-Object {
+    Copy-Item -Path $_.FullName -Destination $NomeDoProjeto -Recurse -Force
+}
 
 Push-Location $NomeDoProjeto
 try {

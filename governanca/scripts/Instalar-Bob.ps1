@@ -49,12 +49,23 @@ function Remove-TmpDir {
 
 try {
     Write-Host "==> Clonando o espelho público do Framework .Bob ($MirrorUrl)..."
-    git clone --quiet --depth 1 $MirrorUrl $TmpDir
+    # --config core.hideDotFiles=false evita que o Git for Windows marque
+    # pastas/arquivos que começam com "." (.bob, .github, .gitignore, ...)
+    # com o atributo Hidden do Windows durante o checkout. Isso é o padrão
+    # de muitas instalações do Git for Windows e, sem essa opção, o
+    # Test-Path abaixo pode retornar $false mesmo com o clone tendo dado
+    # certo -- o conteúdo existe em disco, só está marcado como oculto.
+    git clone --quiet --depth 1 --config core.hideDotFiles=false $MirrorUrl $TmpDir
     if ($LASTEXITCODE -ne 0) {
         throw "git clone falhou (código de saída $LASTEXITCODE). Verifique sua conexão com github.com."
     }
 
-    if (-not (Test-Path (Join-Path $TmpDir ".bob"))) {
+    # -Force é necessário mesmo com core.hideDotFiles=false desabilitado no
+    # clone, como segunda camada de proteção contra qualquer atributo
+    # Hidden/System pré-existente (ex.: definido por antivírus, política de
+    # grupo, ou uma instalação anterior) -- sem -Force, Test-Path pode não
+    # enxergar itens ocultos.
+    if (-not (Test-Path -Force (Join-Path $TmpDir ".bob"))) {
         throw "O clone terminou mas não parece ter o conteúdo esperado (.bob ausente)."
     }
 
