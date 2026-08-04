@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Cria um projeto novo a partir do esqueleto cacheado por Instalar-Bob.ps1
   (Windows).

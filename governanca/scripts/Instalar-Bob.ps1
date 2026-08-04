@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Instalação automatizada de estação do Framework .Bob (Windows).
 
