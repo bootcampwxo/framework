@@ -39,7 +39,15 @@ $MirrorRawBase = "https://raw.githubusercontent.com/bootcampwxo/framework/main"
 $BobHome = Join-Path $env:USERPROFILE ".bob"
 $SettingsDir = Join-Path $BobHome "settings"
 $TemplatesDir = Join-Path $BobHome "templates\desenvolvimento"
-$TmpDir = Join-Path ([System.IO.Path]::GetTempPath()) ("bob-install-" + [System.Guid]::NewGuid().ToString("N"))
+# Propositalmente NÃO usa [System.IO.Path]::GetTempPath()/%TEMP% -- em
+# sessões Citrix/VDI/RDS corporativas, %TEMP% costuma ser redirecionado por
+# sessão e pode ser limpo de forma agressiva (política de grupo, FSLogix/
+# Citrix Profile Management, ou EDR), o que pode apagar a pasta clonada
+# segundos depois de criada, antes deste script terminar de lê-la. Usar uma
+# subpasta dentro de ~/.bob (onde este script já grava conteúdo persistente)
+# evita esse risco.
+New-Item -ItemType Directory -Force -Path $BobHome | Out-Null
+$TmpDir = Join-Path $BobHome ("_tmp-install-" + [System.Guid]::NewGuid().ToString("N"))
 
 function Remove-TmpDir {
     if (Test-Path $TmpDir) {
@@ -49,21 +57,27 @@ function Remove-TmpDir {
 
 try {
     Write-Host "==> Clonando o espelho público do Framework .Bob ($MirrorUrl)..."
+    Write-Host "    (destino temporário: $TmpDir)"
     # --config core.hideDotFiles=false evita que o Git for Windows marque
     # pastas/arquivos que começam com "." (.bob, .github, .gitignore, ...)
-    # com o atributo Hidden do Windows durante o checkout. Isso é o padrão
-    # de muitas instalações do Git for Windows e, sem essa opção, o
-    # Test-Path abaixo pode retornar $false mesmo com o clone tendo dado
-    # certo -- o conteúdo existe em disco, só está marcado como oculto.
+    # com o atributo Hidden do Windows durante o checkout -- mantido como
+    # camada extra de segurança, mesmo não sendo a causa raiz confirmada.
     git clone --quiet --depth 1 --config core.hideDotFiles=false $MirrorUrl $TmpDir
     if ($LASTEXITCODE -ne 0) {
         throw "git clone falhou (código de saída $LASTEXITCODE). Verifique sua conexão com github.com."
     }
 
-    # Test-Path não tem parâmetro -Force (isso existe em Get-ChildItem/
-    # Copy-Item, não aqui) -- o que de fato resolve o atributo Hidden é o
-    # --config core.hideDotFiles=false já passado acima no git clone.
     if (-not (Test-Path (Join-Path $TmpDir ".bob"))) {
+        # Diagnóstico inline em vez de só falhar às cegas -- mostra o que
+        # de fato existe em $TmpDir (com -Force, para não esconder itens
+        # ocultos) para facilitar identificar a causa se isso acontecer de
+        # novo.
+        Write-Host "AVISO: .bob não encontrado em $TmpDir. Conteúdo atual dessa pasta:"
+        if (Test-Path $TmpDir) {
+            Get-ChildItem -Path $TmpDir -Force | Format-Table Name, Attributes, LastWriteTime | Out-String | Write-Host
+        } else {
+            Write-Host "    (a própria pasta $TmpDir não existe mais -- algo no ambiente a removeu depois do clone)"
+        }
         throw "O clone terminou mas não parece ter o conteúdo esperado (.bob ausente)."
     }
 
