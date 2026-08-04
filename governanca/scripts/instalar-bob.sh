@@ -13,17 +13,17 @@
 #      confirmado por teste real numa máquina em uso (04/08/2026): skills
 #      são reconhecidas pelo Bob-IDE nesse escopo, diferente de
 #      rules/rules-<papel>, que continuam por projeto (ver item 4).
-#   4. Guarda uma cópia do esqueleto "por projeto" em
+#   4. Instala o bloqueio ativo de conteúdo (bob-moderation) em ~/.bob/ --
+#      regra em ~/.bob/rules/moderation.md, config em ~/.bob/config/,
+#      scripts em ~/.bob/scripts/, e agenda o monitoramento no cron (a cada
+#      hora), se crontab estiver disponível. Publicado no espelho público a
+#      partir de 04/08/2026, por decisão explícita do responsável pelo
+#      framework -- ver nota em governanca/README.md sobre o trade-off
+#      (a lista de termos bloqueados fica publicamente visível).
+#   5. Guarda uma cópia do esqueleto "por projeto" em
 #      ~/.bob/templates/desenvolvimento/ (regras universais, perfis de
 #      papel, pastas de artefato — SEM as skills, já instaladas globalmente
 #      no passo 3), para uso pelo script irmão bob-novo-projeto.sh.
-#
-# O que este script NÃO faz:
-#   - Não instala o bloqueio ativo de conteúdo (bob-moderation). Esse
-#     sistema não é publicado no espelho público de propósito (contém uma
-#     lista de termos bloqueados — publicá-la destruiria a utilidade dela
-#     como controle de segurança). Se sua organização usa isso, instale a
-#     partir do repositório interno correspondente.
 #
 # Uso (repositório já clonado localmente):
 #   ./instalar-bob.sh
@@ -141,6 +141,45 @@ else
   echo "AVISO: $SKILLS_SRC não encontrado no espelho — pulando instalação de skills."
 fi
 
+MODERATION_SRC="$TMP_DIR/framework/governanca/bob-moderation"
+if [ -d "$MODERATION_SRC" ]; then
+  echo "==> Instalando bloqueio ativo de conteúdo (bob-moderation) em $BOB_HOME"
+  mkdir -p "$BOB_HOME/rules" "$BOB_HOME/config" "$BOB_HOME/scripts" "$BOB_HOME/logs" "$BOB_HOME/reports" "$BOB_HOME/db"
+
+  if [ -f "$MODERATION_SRC/rules/moderation.md" ]; then
+    cp "$MODERATION_SRC/rules/moderation.md" "$BOB_HOME/rules/moderation.md"
+  fi
+  if [ -d "$MODERATION_SRC/config" ]; then
+    cp -R "$MODERATION_SRC/config/." "$BOB_HOME/config/"
+  fi
+  if [ -d "$MODERATION_SRC/scripts" ]; then
+    cp -R "$MODERATION_SRC/scripts/." "$BOB_HOME/scripts/"
+    chmod +x "$BOB_HOME/scripts/"*.sh 2>/dev/null || true
+  fi
+  echo "    OK: regra de moderação + config + scripts instalados."
+
+  # Agenda o monitoramento no cron, se disponível -- best-effort: sob
+  # set -e, uma falha aqui (ex.: sem permissão de escrita em
+  # /var/spool/cron, comum em containers/sandboxes) não pode derrubar o
+  # script inteiro, por isso o "crontab -" roda dentro de um "if" (nunca
+  # como statement solto).
+  if command -v crontab >/dev/null 2>&1; then
+    if crontab -l 2>/dev/null | grep -q "content-monitor.sh"; then
+      echo "    Monitoramento já estava agendado no cron."
+    elif ( (crontab -l 2>/dev/null; echo "0 * * * * bash $BOB_HOME/scripts/content-monitor.sh >> $BOB_HOME/logs/monitor.log 2>&1") | crontab - ) 2>/dev/null; then
+      echo "    OK: monitoramento automático agendado no cron (a cada hora)."
+    else
+      echo "    AVISO: não foi possível agendar no cron (sem permissão ou sem daemon de cron neste ambiente)."
+      echo "      Rode manualmente quando quiser: bash $BOB_HOME/scripts/content-monitor.sh"
+    fi
+  else
+    echo "    AVISO: 'crontab' não disponível -- rode manualmente quando quiser:"
+    echo "      bash $BOB_HOME/scripts/content-monitor.sh"
+  fi
+else
+  echo "AVISO: $MODERATION_SRC não encontrado no espelho -- pulando bob-moderation."
+fi
+
 echo "==> Guardando o esqueleto de projeto em $TEMPLATES_DIR"
 rm -rf "$TEMPLATES_DIR"
 mkdir -p "$TEMPLATES_DIR"
@@ -166,6 +205,5 @@ echo "Para criar um projeto novo a partir do esqueleto cacheado, rode (no"
 echo "diretório onde o novo projeto deve nascer):"
 echo "  curl -fsSL $MIRROR_RAW_BASE/governanca/scripts/bob-novo-projeto.sh | bash -s -- <nome-do-projeto>"
 echo ""
-echo "Bloqueio ativo de conteúdo (bob-moderation) NÃO foi instalado por este"
-echo "script — esse sistema não é publicado no espelho público de propósito."
-echo "Se sua organização usa isso, instale a partir do repositório interno."
+echo "Bloqueio ativo de conteúdo (bob-moderation) instalado em $BOB_HOME."
+echo "Personalize a lista de termos bloqueados em: $BOB_HOME/config/blocked-terms.txt"

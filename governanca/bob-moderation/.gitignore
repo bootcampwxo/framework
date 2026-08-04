@@ -1,0 +1,127 @@
+# Bob Content Moderation - Git Ignore
+
+# ============================================
+# ARQUIVOS SENSÍVEIS (NÃO COMMITAR)
+# ============================================
+
+# Configurações com credenciais
+config/alert-config.yaml
+config/.env
+config/secrets.yaml
+
+# Logs com dados sensíveis
+logs/
+*.log
+
+# Relatórios com informações confidenciais
+reports/
+*.pdf
+*.html
+
+# Backups
+*.bak
+*.backup
+*~
+
+# ============================================
+# ARQUIVOS TEMPORÁRIOS
+# ============================================
+
+# Arquivos temporários do sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Diretórios temporários
+tmp/
+temp/
+.tmp/
+
+# ============================================
+# AMBIENTES VIRTUAIS (se usar Python)
+# ============================================
+
+# Python
+venv/
+env/
+ENV/
+.venv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================================
+# IDEs E EDITORES
+# ============================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# ============================================
+# SISTEMA OPERACIONAL
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# ARQUIVOS DE BUILD/DIST
+# ============================================
+
+dist/
+build/
+*.egg-info/
+
+# ============================================
+# NOTAS IMPORTANTES
+# ============================================
+
+# Se você quiser versionar configurações sensíveis,
+# use arquivos .example:
+# - config/alert-config.yaml.example (commitar)
+# - config/alert-config.yaml (não commitar, .gitignore)
+
+# Para dados sensíveis, considere usar:
+# - Git-crypt
+# - BlackBox
+# - SOPS (Secrets OPerationS)
+# - Vault
+
+# Made with Bob

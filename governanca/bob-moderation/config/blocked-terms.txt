@@ -1,0 +1,135 @@
+# Lista de Termos Bloqueados - Bob Content Moderation
+# Formato: um termo por linha (regex suportado)
+# Linhas começando com # são comentários
+
+# ============================================
+# SEGURANÇA MALICIOSA
+# ============================================
+
+# Bypass de Segurança
+bypass.*security
+bypass.*authentication
+bypass.*authorization
+circumvent.*security
+disable.*security
+override.*security
+
+# Hacking e Invasão
+hack.*into
+hack.*system
+break.*into
+penetrate.*system
+exploit.*vulnerability
+zero.*day.*exploit
+
+# Roubo de Credenciais
+steal.*credentials
+steal.*password
+steal.*token
+steal.*api.*key
+extract.*password
+dump.*credentials
+harvest.*credentials
+
+# Malware
+create.*malware
+create.*virus
+create.*ransomware
+create.*trojan
+create.*worm
+build.*malware
+develop.*malware
+keylogger
+backdoor.*access
+remote.*access.*trojan
+
+# Ataques Web
+sql.*injection
+xss.*attack
+cross.*site.*scripting
+csrf.*attack
+command.*injection
+path.*traversal
+directory.*traversal
+
+# ============================================
+# EXFILTRAÇÃO DE DADOS
+# ============================================
+
+exfiltrate.*data
+exfiltrate.*information
+leak.*database
+leak.*data
+dump.*database
+extract.*secrets
+steal.*data
+copy.*sensitive.*data
+download.*confidential
+
+# ============================================
+# VIOLAÇÃO DE COMPLIANCE
+# ============================================
+
+bypass.*audit
+hide.*logs
+delete.*evidence
+tamper.*records
+falsify.*logs
+manipulate.*audit
+cover.*tracks
+
+# ============================================
+# CONTEÚDO OFENSIVO
+# ============================================
+# Adicione termos específicos conforme política da empresa
+
+# Discriminação
+# [Adicione termos específicos]
+
+# Assédio
+# [Adicione termos específicos]
+
+# Violência
+# [Adicione termos específicos]
+
+# ============================================
+# VIOLAÇÃO DE PROPRIEDADE INTELECTUAL
+# ============================================
+
+pirate.*software
+crack.*license
+bypass.*license
+keygen
+serial.*generator
+nulled.*software
+
+# ============================================
+# CRIPTOGRAFIA MALICIOSA
+# ============================================
+
+encrypt.*ransom
+crypto.*locker
+file.*encryptor.*malicious
+
+# ============================================
+# PHISHING E ENGENHARIA SOCIAL
+# ============================================
+
+create.*phishing
+fake.*login.*page
+spoof.*email
+impersonate.*user
+
+# ============================================
+# NEGAÇÃO DE SERVIÇO
+# ============================================
+
+ddos.*attack
+dos.*attack
+flood.*attack
+amplification.*attack
+
+# ============================================
+# TERMOS CUSTOMIZADOS
+# ============================================
+# Adicione termos específicos da sua organização abaixo

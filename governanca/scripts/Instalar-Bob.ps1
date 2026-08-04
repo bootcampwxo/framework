@@ -14,16 +14,20 @@
        Global, confirmado por teste real numa máquina em uso (04/08/2026):
        skills são reconhecidas pelo Bob-IDE nesse escopo, diferente de
        rules/rules-<papel>, que continuam por projeto (ver item 4).
-    4. Guarda uma cópia do esqueleto "por projeto" em
+    4. Instala o bloqueio ativo de conteúdo (bob-moderation) em
+       %USERPROFILE%\.bob\ -- regra em .bob\rules\moderation.md, config em
+       .bob\config\, scripts em .bob\scripts\ (são scripts bash -- rodam
+       via WSL/Git Bash, não nativamente no PowerShell; este instalador só
+       copia os arquivos, não agenda tarefa automática no Windows).
+       Publicado no espelho público a partir de 04/08/2026, por decisão
+       explícita do responsável pelo framework -- ver nota em
+       governanca/README.md sobre o trade-off (a lista de termos
+       bloqueados fica publicamente visível).
+    5. Guarda uma cópia do esqueleto "por projeto" em
        %USERPROFILE%\.bob\templates\desenvolvimento\ (regras universais,
        perfis de papel, pastas de artefato -- SEM as skills, já instaladas
        globalmente no passo 3), para uso pelo script irmão
        Bob-NovoProjeto.ps1.
-
-  NÃO instala o bloqueio ativo de conteúdo (bob-moderation). Esse sistema
-  não é publicado no espelho público de propósito (contém uma lista de
-  termos bloqueados). Se sua organização usa isso, instale a partir do
-  repositório interno correspondente.
 
 .EXAMPLE
   # Repositório já clonado localmente
@@ -174,6 +178,43 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
         Write-Host "AVISO: $SkillsSrc não encontrado no espelho -- pulando instalação de skills."
     }
 
+    $ModerationSrc = Join-Path $TmpDir "governanca\bob-moderation"
+    if (Test-Path $ModerationSrc) {
+        Write-Host "==> Instalando bloqueio ativo de conteúdo (bob-moderation) em $BobHome"
+        $ModRulesDest = Join-Path $BobHome "rules"
+        $ModConfigDest = Join-Path $BobHome "config"
+        $ModScriptsDest = Join-Path $BobHome "scripts"
+        New-Item -ItemType Directory -Force -Path $ModRulesDest | Out-Null
+        New-Item -ItemType Directory -Force -Path $ModConfigDest | Out-Null
+        New-Item -ItemType Directory -Force -Path $ModScriptsDest | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $BobHome "logs") | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $BobHome "reports") | Out-Null
+        New-Item -ItemType Directory -Force -Path (Join-Path $BobHome "db") | Out-Null
+
+        $ModRuleFile = Join-Path $ModerationSrc "rules\moderation.md"
+        if (Test-Path $ModRuleFile) {
+            Copy-Item -Path $ModRuleFile -Destination (Join-Path $ModRulesDest "moderation.md") -Force
+        }
+        $ModConfigSrc = Join-Path $ModerationSrc "config"
+        if (Test-Path $ModConfigSrc) {
+            Get-ChildItem -Path $ModConfigSrc -Force | ForEach-Object {
+                Copy-Item -Path $_.FullName -Destination $ModConfigDest -Recurse -Force
+            }
+        }
+        $ModScriptsSrc = Join-Path $ModerationSrc "scripts"
+        if (Test-Path $ModScriptsSrc) {
+            Get-ChildItem -Path $ModScriptsSrc -Force | ForEach-Object {
+                Copy-Item -Path $_.FullName -Destination $ModScriptsDest -Recurse -Force
+            }
+        }
+        Write-Host "    OK: regra de moderação + config + scripts instalados."
+        Write-Host "    Os scripts de monitoramento são bash (.sh) -- rode via WSL/Git Bash:"
+        Write-Host "      bash $ModScriptsDest\content-monitor.sh"
+        Write-Host "    Este instalador não agenda tarefa automática no Windows (sem cron nativo)."
+    } else {
+        Write-Host "AVISO: $ModerationSrc não encontrado no espelho -- pulando bob-moderation."
+    }
+
     Write-Host "==> Guardando o esqueleto de projeto em $TemplatesDir"
     if (Test-Path $TemplatesDir) {
         Remove-Item -Recurse -Force $TemplatesDir
@@ -204,9 +245,8 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
     Write-Host "  `$ib = irm $MirrorRawBase/governanca/scripts/Bob-NovoProjeto.ps1"
     Write-Host "  & ([scriptblock]::Create(`$ib)) <nome-do-projeto>"
     Write-Host ""
-    Write-Host "Bloqueio ativo de conteúdo (bob-moderation) NÃO foi instalado por este"
-    Write-Host "script -- esse sistema não é publicado no espelho público de propósito."
-    Write-Host "Se sua organização usa isso, instale a partir do repositório interno."
+    Write-Host "Bloqueio ativo de conteúdo (bob-moderation) instalado em $BobHome."
+    Write-Host "Personalize a lista de termos bloqueados em: $BobHome\config\blocked-terms.txt"
 }
 finally {
     Remove-TmpDir
