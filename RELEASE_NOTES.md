@@ -16,8 +16,11 @@
 - `.bob/skills/revisao-final-holistica/SKILL.md` — passa a validar conformidade de design como uma das dimensões.
 - Modo Desenvolvedor — passa a implementar interface contra a especificação de design aprovada.
 
-### Corrigido
-- —
+### Corrigido (auditoria de coerência pós-Designer)
+- `.bob/rules-product-owner/01-po.md` — novo campo obrigatório "Toca interface" no modelo de história, o ponto mais cedo do fluxo para sinalizar que um item precisa de especificação de design.
+- `.bob/rules-sprint-planner/01-planejador-de-sprint.md` e `governanca/custom_modes.yaml` (modo sprint-planner) — passa a verificar esse campo e tratar `03-design.md` não aprovado como dependência bloqueante antes de sequenciar o desenvolvimento.
+- `.bob/rules-tester/01-testador.md` — esclarece a divisão de responsabilidade com a revisão de UI do Designer (comportamento vs. conformidade visual/acessibilidade).
+- Antes desta correção, um item que tocasse interface só era detectado tarde (trava do Desenvolvedor ou revisão final), nunca durante o planejamento. Detalhes completos no repositório interno.
 
 ---
 

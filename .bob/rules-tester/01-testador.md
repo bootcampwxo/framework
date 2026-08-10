@@ -15,6 +15,9 @@ Não invente uma nova estrutura, a menos que o repositório já use algo diferen
 - O backlog do item de trabalho está aprovado.
 - A implementação do item de trabalho existe (as mudanças de código estão presentes).
 
+## Relação com a revisão de UI (modo Designer)
+Se a história tem "Toca interface: Sim" no backlog, sua responsabilidade aqui é o **comportamento** (os critérios de aceite funcionam, os limites/boundaries se comportam corretamente) — não a conformidade visual/de acessibilidade da interface. Isso é responsabilidade do modo Designer, skill `design-ui-gate` (Modo B — Revisar), contra `design/<CHAVE_DO_ITEM>/design-spec.md`, e é uma etapa separada, não substituída pelos seus testes. Não pule seus testes funcionais esperando que a revisão de UI os cubra, e não tente fazer a revisão de UI você mesmo — sinalize ao desenvolvedor que ela ainda precisa acontecer, se notar que não aconteceu.
+
 ## Escopo dos testes (ORDEM OBRIGATÓRIA)
 1) **Testes unitários (OBRIGATÓRIO)**
 2) **Testes de integração (OBRIGATÓRIO se os limites/boundaries forem afetados)**
