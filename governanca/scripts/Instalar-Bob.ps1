@@ -6,7 +6,7 @@
   Rode uma vez por máquina de desenvolvedor:
     1. Clona o espelho público do framework (bootcampwxo/framework) num
        diretório temporário -- sem autenticação, funciona de qualquer rede.
-    2. Instala os 12 modos (custom_modes.yaml) em
+    2. Instala os 13 modos (custom_modes.yaml) em
        %USERPROFILE%\.bob\settings\ -- nunca sobrescreve às cegas: se já
        existir um arquivo lá, tenta mesclar com segurança (usando Python,
        se disponível) ou faz backup antes de sobrescrever.
@@ -91,7 +91,7 @@ try {
         throw "O clone terminou mas não parece ter o conteúdo esperado (.bob ausente)."
     }
 
-    Write-Host "==> Instalando os 12 modos em $SettingsDir\custom_modes.yaml"
+    Write-Host "==> Instalando os 13 modos em $SettingsDir\custom_modes.yaml"
     New-Item -ItemType Directory -Force -Path $SettingsDir | Out-Null
 
     $NewModes = Join-Path $TmpDir "governanca\custom_modes.yaml"
@@ -277,7 +277,7 @@ print(f"    OK: {len(new_modes)} modo(s) mesclado(s) em {dest_path} (total agora
     Write-Host ""
     Write-Host "Instalação concluída."
     Write-Host ""
-    Write-Host "Confira no seletor de modos da sua IDE: devem aparecer os 12 modos do"
+    Write-Host "Confira no seletor de modos da sua IDE: devem aparecer os 13 modos do"
     Write-Host "Framework .Bob, incluindo Oráculo (reinicie a IDE se necessário)."
     Write-Host "As 10 skills também já estão disponíveis globalmente em $SkillsDest."
     Write-Host ""

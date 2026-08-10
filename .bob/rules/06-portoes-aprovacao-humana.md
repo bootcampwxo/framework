@@ -27,6 +27,7 @@ gates/<CHAVE_DO_ITEM>/
   01-prd.md
   02-backlog.md
   03-adr.md
+  03-design.md (condicional: quando o item toca interface)
   04-sprintplan.md
   05-pr.md
   06-release-ready.md (opcional)
@@ -61,6 +62,12 @@ Notes:
 
 3) Portão de ADR (se um ADR for criado/atualizado): `gates/<CHAVE_DO_ITEM>/03-adr.md`
    - Deve estar APPROVED antes de o desenvolvimento começar.
+
+3b) Portão de Design (se o item de trabalho tocar interface): `gates/<CHAVE_DO_ITEM>/03-design.md`
+   - Criado depois que `design/<CHAVE_DO_ITEM>/design-spec.md` é criado/atualizado (estágio Desenhar).
+   - Fica no mesmo nível de fase do portão de ADR — os dois podem coexistir no mesmo item.
+   - Deve estar APPROVED antes de a implementação da interface começar.
+   - Se o item não tocar interface, não crie este portão; declare "sem impacto de design" no item de trabalho.
 
 4) Portão de Plano de Sprint (se um plano de sprint for criado/atualizado): `gates/<CHAVE_DO_ITEM>/04-sprintplan.md`
    - Deve estar APPROVED antes de o desenvolvimento começar.

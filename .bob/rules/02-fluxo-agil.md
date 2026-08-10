@@ -4,9 +4,10 @@
 1) Descobrir/Feedback -> atualizar backlog
 2) Definir -> PRD e critérios de aceite
 3) Desenhar -> ADR (se houver decisão arquitetural ou impacto em requisitos não funcionais)
+   + Especificação de design (se o item tocar interface: tokens, componentes, estados, fluxos, acessibilidade)
 4) Planejar -> fatia de sprint + Definição de Pronto
 5) Construir -> implementar + testes unitários
-6) Verificar -> testes de integração/e2e + notas de regressão
+6) Verificar -> testes de integração/e2e + notas de regressão + revisão de UI contra a especificação de design
 7) Proteger -> atualizações do modelo de ameaças + verificações de segurança
 8) Documentar -> guia do usuário + atualizações de runbook
 9) Lançar/Operar -> notas de release + prontidão operacional

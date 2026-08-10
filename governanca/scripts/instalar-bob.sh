@@ -5,7 +5,7 @@
 # O que este script faz (rode uma vez por máquina de desenvolvedor):
 #   1. Clona o espelho público do framework (bootcampwxo/framework) num
 #      diretório temporário — sem autenticação, funciona de qualquer rede.
-#   2. Instala os 12 modos (custom_modes.yaml) em ~/.bob/settings/ — nunca
+#   2. Instala os 13 modos (custom_modes.yaml) em ~/.bob/settings/ — nunca
 #      sobrescreve às cegas: se já existir um arquivo lá, tenta mesclar com
 #      segurança (usando python3, se disponível) ou faz backup antes de
 #      sobrescrever.
@@ -63,7 +63,7 @@ if [ ! -d "$TMP_DIR/framework/.bob" ]; then
   exit 1
 fi
 
-echo "==> Instalando os 12 modos em $SETTINGS_DIR/custom_modes.yaml"
+echo "==> Instalando os 13 modos em $SETTINGS_DIR/custom_modes.yaml"
 mkdir -p "$SETTINGS_DIR"
 
 NEW_MODES="$TMP_DIR/framework/governanca/custom_modes.yaml"
@@ -217,7 +217,7 @@ rm -rf "$TEMPLATES_DIR/.bob/skills"
 echo ""
 echo "Instalação concluída."
 echo ""
-echo "Confira no seletor de modos da sua IDE: devem aparecer os 12 modos do"
+echo "Confira no seletor de modos da sua IDE: devem aparecer os 13 modos do"
 echo "Framework .Bob, incluindo 🔮 Oráculo (reinicie a IDE se necessário)."
 echo "As 10 skills também já estão disponíveis globalmente em $SKILLS_DEST."
 echo ""

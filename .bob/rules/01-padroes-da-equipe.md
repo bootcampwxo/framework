@@ -25,6 +25,11 @@ Entregar incrementos pequenos e testáveis de valor para o cliente em um ciclo c
 ### Decisões de arquitetura
 - `architecture/adr/`
 
+### Design (UI/UX)
+- `design/design-system.md` (registro vivo do design system — um por repositório)
+- `design/<CHAVE_DO_ITEM>/design-spec.md` (obrigatório quando o item toca interface)
+- `design/<CHAVE_DO_ITEM>/revisao-de-ui.md` (achados da revisão da UI implementada)
+
 ### Plano de sprint
 - `delivery/sprint-plan.md`
 
@@ -48,7 +53,7 @@ Entregar incrementos pequenos e testáveis de valor para o cliente em um ciclo c
 - `gates/<CHAVE_DO_ITEM>/`
   - `00-discovery.md` (recomendado)
   - `00-resourcing.md` (opcional)
-  - `01-prd.md`, `02-backlog.md`, `03-adr.md`, `04-sprintplan.md`, `05-pr.md`, `06-release-ready.md` (opcional)
+  - `01-prd.md`, `02-backlog.md`, `03-adr.md`, `03-design.md` (condicional), `04-sprintplan.md`, `05-pr.md`, `06-release-ready.md` (opcional)
 - Ponteiro recomendado: `gates/CURRENT_WORK_ITEM.md`
 
 ### Rascunhos/resultados do Jira (opcional)
@@ -74,7 +79,8 @@ Se algum arquivo/pasta obrigatório não existir, crie um esqueleto mínimo em v
 - **A descoberta deve ser aprovada** (`00-discovery.md` = APPROVED) antes de iniciar o trabalho de PRD (quando artefatos de descoberta forem produzidos).
 - **O plano de recursos deve ser aprovado** (`00-resourcing.md` = APPROVED) antes de agir sobre mudanças de contratação/equipe (quando artefatos de recursos forem produzidos).
 - **O PRD deve ser aprovado** (`01-prd.md` = APPROVED) antes de atualizar `backlog/<CHAVE_DO_ITEM>.md`.
-- **O backlog deve ser aprovado** (`02-backlog.md` = APPROVED) antes de iniciar ADR/planejamento de sprint/desenvolvimento.
+- **O backlog deve ser aprovado** (`02-backlog.md` = APPROVED) antes de iniciar ADR/design/planejamento de sprint/desenvolvimento.
+- **A especificação de design deve ser aprovada** (`03-design.md` = APPROVED) antes de a implementação da interface começar (quando o item de trabalho tocar interface).
 - **O PR deve ser aprovado** (`05-pr.md` = APPROVED) antes das etapas finais de merge/prontidão para release.
 - Em cada portão, pare e solicite aprovação se o Status estiver PENDING ou REJECTED.
 - Se rejeitado: atualize os artefatos, redefina o portão para PENDING e solicite revisão novamente.

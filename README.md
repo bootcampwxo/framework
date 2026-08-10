@@ -27,7 +27,10 @@ Artefatos de descoberta em estágio inicial (definição do problema, escopo de 
 - `backlog.md` é o índice que aponta para eles.
 
 ### `architecture/`
-Registros de Decisão de Arquitetura (ADRs), a constituição do projeto e artefatos de design.
+Registros de Decisão de Arquitetura (ADRs) e a constituição do projeto.
+
+### `design/`
+Artefatos de design (UI/UX): o design system vivo do projeto (`design-system.md`), a especificação de design por item de trabalho (`<CHAVE_DO_ITEM>/design-spec.md`) e a revisão da UI implementada (`<CHAVE_DO_ITEM>/revisao-de-ui.md`). Modelos prontos em `design/_modelos/`.
 
 ### `delivery/`
 Planejamento de sprint e artefatos de acompanhamento de entrega.
@@ -57,12 +60,14 @@ Rascunhos/resultados opcionais de Jira ao publicar via MCP da Atlassian (somente
 
 ## Governança e fluxo guiado
 
-Além dos 9 papéis originais (Descoberta, Product Owner, Arquiteto, Planejador de Sprint, Desenvolvedor, Testador, Segurança, Redator de Documentação, Engenheiro de Produto), o framework inclui dois modos e três skills adicionais:
+Além dos 9 papéis originais (Descoberta, Product Owner, Arquiteto, Planejador de Sprint, Desenvolvedor, Testador, Segurança, Redator de Documentação, Engenheiro de Produto), o framework inclui três modos e quatro skills adicionais:
 
 - **`governanca`** (modo): estabelece e emenda `architecture/constituicao.md` — os princípios de engenharia, qualidade, arquitetura e segurança não-negociáveis que vinculam todos os demais modos. Veja `.bob/rules/08-constituicao-do-projeto.md`.
-- **`revisor-qualidade`** (modo): faz a validação holística final de um item de trabalho (spec, ADR, código, testes, segurança, docs) antes do PR, categorizando achados por severidade.
+- **`designer`** (modo, 🎨): define a identidade visual e a experiência do produto — design tokens, inventário de componentes, matriz de estados, fluxos de usuário, responsividade e acessibilidade — **antes** de o Desenvolvedor implementar, e valida a UI implementada depois. Regras em `.bob/rules-designer/01-designer.md`.
+- **`revisor-qualidade`** (modo): faz a validação holística final de um item de trabalho (spec, ADR, design, código, testes, segurança, docs) antes do PR, categorizando achados por severidade.
 - **`.bob/skills/governanca-constituicao/`**: cria/emenda a constituição do projeto.
-- **`.bob/skills/fluxo-guiado-e2e/`**: orquestra automaticamente a sequência completa Descoberta → PRD → Backlog → ADR → Dev → Teste → Segurança → Docs → Revisão → PR, parando apenas nos portões de aprovação já definidos.
+- **`.bob/skills/design-ui-gate/`**: playbook de duas etapas — Modo A (Especificar) produz `design/<CHAVE_DO_ITEM>/design-spec.md` e para no portão `03-design.md`; Modo B (Revisar) valida a interface implementada contra essa especificação.
+- **`.bob/skills/fluxo-guiado-e2e/`**: orquestra automaticamente a sequência completa Descoberta → PRD → Backlog → ADR → Design → Dev → Teste → Segurança → Docs → Revisão de UI → Revisão → PR, parando apenas nos portões de aprovação já definidos.
 - **`.bob/skills/revisao-final-holistica/`**: a skill usada pelo modo `revisor-qualidade`.
 
 Duas regras universais adicionais:
@@ -80,6 +85,7 @@ Fluxo típico usando pastas por item de trabalho:
 - `gates/<CHAVE_DO_ITEM>/01-prd.md` antes do backlog
 - `gates/<CHAVE_DO_ITEM>/02-backlog.md` antes de design/desenvolvimento
 - `gates/<CHAVE_DO_ITEM>/03-adr.md` quando um ADR é necessário
+- `gates/<CHAVE_DO_ITEM>/03-design.md` quando o item toca interface (condicional, mesmo nível de fase do ADR)
 - `gates/<CHAVE_DO_ITEM>/04-plano-de-sprint.md` se você usa portão de plano de sprint
 - `gates/<CHAVE_DO_ITEM>/05-pr.md` antes do merge
 - `gates/<CHAVE_DO_ITEM>/06-pronto-para-release.md` sign-off final opcional
@@ -97,10 +103,10 @@ Mapeamento de exemplo (baseado nos modos definidos):
 - **Governar** (transversal, antes de tudo): `governanca`
 - **Descobrir**: `discovery` (Descoberta & Visão)
 - **Planejar**: `product-owner`
-- **Desenhar**: `architect`
+- **Desenhar**: `architect` (decisões técnicas) + `designer` (interface e experiência)
 - **Coordenação de sprint**: `sprint-planner`
 - **Codificar**: `developer`
-- **Testar**: `tester`
+- **Testar**: `tester` (comportamento) + `designer` (revisão de UI)
 - **Proteger**: `security`
 - **Validar** (antes do PR): `revisor-qualidade`
 - **Documentar**: `doc-writer`
@@ -115,9 +121,11 @@ Mapeamento de exemplo (baseado nos modos definidos):
 3) **Product Owner**: crie o PRD → aprove o portão
 4) **Product Owner**: crie o backlog → aprove o portão
 5) **Arquiteto** (se necessário): crie o ADR → aprove o portão
+5b) **Designer** (se o item tocar interface): crie a especificação de design → aprove o portão `03-design.md`
 6) **Planejador de Sprint** (opcional): crie a fatia de sprint → aprove o portão
-7) **Desenvolvedor**: implemente com testes
+7) **Desenvolvedor**: implemente com testes, seguindo a especificação de design aprovada
 8) **Testador**: verifique os critérios de aceite + amplie os testes
+8b) **Designer** (se aplicável): revise a UI implementada contra a especificação
 9) **Segurança**: revisão de CVE/dependências + notas de segurança
 10) **Redator de Documentação**: gere a especificação técnica a partir do código
 11) **Estágio de PR**: crie o PR + aprove o portão de PR
@@ -164,7 +172,7 @@ Os **modos do seu projeto** são fornecidos via `.bob/custom_modes.yaml`.
 ├── .bob/                        # Configuração do Framework .Bob
 │   ├── custom_modes.yaml       # Papéis de membro de equipe de IA
 │   ├── rules/                  # Padrões e políticas universais da equipe
-│   ├── rules-<papel>/          # Regras específicas por papel
+│   ├── rules-<papel>/          # Regras específicas por papel (inclui rules-designer/)
 │   └── skills/                 # Playbooks reutilizáveis (skills)
 ├── architecture/                # ADRs + Constituição do projeto
 │   ├── adr/                     # Registros de Decisão de Arquitetura
@@ -172,6 +180,7 @@ Os **modos do seu projeto** são fornecidos via `.bob/custom_modes.yaml`.
 │   └── modelo-constituicao.md   # Modelo de constituição
 ├── backlog/ + backlog.md       # Backlogs por item de trabalho + índice
 ├── delivery/                   # Planejamento de sprint
+├── design/                      # Design system, specs de UI/UX e revisões de interface
 ├── discovery/                  # Artefatos de descoberta
 ├── docs/                       # Especificações técnicas
 ├── gates/                      # Portões de aprovação humana
