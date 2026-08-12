@@ -9,12 +9,14 @@
 - **Skill `design-ui-gate`** (`.bob/skills/design-ui-gate/`) — playbook de duas etapas: **A (Especificar)** produz a especificação de design e para no portão `03-design.md`; **B (Revisar)** valida a UI implementada contra a spec e classifica os achados por severidade.
 - **Pasta `design/`** — artefatos de design: `design-system.md`, `<CHAVE_DO_ITEM>/design-spec.md` e `<CHAVE_DO_ITEM>/revisao-de-ui.md`, com modelos em `design/_modelos/`.
 - **Portão de Design** — `gates/<CHAVE_DO_ITEM>/03-design.md`, condicional (só quando o item toca interface), no mesmo nível de fase do portão de ADR.
+- **Pasta `brand/`** — assets oficiais de identidade visual (logo, paleta de cores, tipografia, ícones), com subpastas `logos/`, `paleta-de-cores/`, `tipografia/` e `icones/`. É o local que a pré-checagem obrigatória do Designer inspeciona antes de propor qualquer token/cor/ícone novo — ver `brand/README.md`.
 
 ### Alterado
 - `.bob/rules/01-padroes-da-equipe.md`, `02-fluxo-agil.md`, `03-definicao-de-pronto.md`, `06-portoes-aprovacao-humana.md` — passam a referenciar os artefatos e o portão de design.
 - `.bob/skills/fluxo-guiado-e2e/SKILL.md` — sequência ampliada, com design antes da implementação e revisão de UI depois dos testes.
 - `.bob/skills/revisao-final-holistica/SKILL.md` — passa a validar conformidade de design como uma das dimensões.
 - Modo Desenvolvedor — passa a implementar interface contra a especificação de design aprovada.
+- `.bob/rules-designer/01-designer.md` e `.bob/skills/design-ui-gate/SKILL.md` — o item "Assets de marca" da pré-checagem obrigatória passa a apontar para `brand/`. `design/README.md` e o modelo `design/_modelos/design-system.md` também referenciam a nova pasta.
 
 ### Corrigido (auditoria de coerência pós-Designer)
 - `.bob/rules-product-owner/01-po.md` — novo campo obrigatório "Toca interface" no modelo de história, o ponto mais cedo do fluxo para sinalizar que um item precisa de especificação de design.

@@ -24,7 +24,7 @@ Antes de propor qualquer decisão visual, você DEVE inspecionar o repositório 
 2. **Tokens existentes**: procure por `tokens.*`, `theme.*`, `:root {`, `tailwind.config.*`, `_variables.scss`, `design-system/`, `styles/`. Liste os tokens que já existem.
 3. **Componentes já implementados**: liste os componentes de UI existentes antes de propor qualquer componente novo.
 4. **Padrões de layout já usados**: grid, breakpoints, densidade, navegação.
-5. **Assets de marca**: logos, ícones, ilustrações já versionados no repositório.
+5. **Assets de marca**: logos, ícones, paleta de cores, tipografia e demais arquivos oficiais em `brand/` (se a pasta existir e tiver conteúdo) — ver [`brand/README.md`](../../brand/README.md).
 6. **Acessibilidade já praticada**: há uso de `aria-*`, foco visível, testes com `axe`/`jest-axe`?
 
 **Registre o resultado dessa inspeção na especificação de design.** Se o projeto não tiver nenhum design system, isso é uma decisão a ser tomada e registrada — proponha uma opção com justificativa e trate como dependência de ADR (modo Arquiteto).

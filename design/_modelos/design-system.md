@@ -65,7 +65,7 @@ Registro vivo da identidade visual do projeto. **Fonte única de verdade**: se u
 ## 6. Ícones e marca
 
 - **Biblioteca de ícones oficial:** <ex.: `@carbon/icons-react`>
-- **Localização dos assets de marca:** <caminho>
+- **Localização dos assets de marca:** <caminho — ex.: `brand/`>
 - **Proibido:** emoji ou Unicode como ícone, SVG desenhado à mão, logo aproximado em CSS/texto.
 
 ## 7. Inventário de componentes

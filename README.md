@@ -32,6 +32,9 @@ Registros de Decisão de Arquitetura (ADRs) e a constituição do projeto.
 ### `design/`
 Artefatos de design (UI/UX): o design system vivo do projeto (`design-system.md`), a especificação de design por item de trabalho (`<CHAVE_DO_ITEM>/design-spec.md`) e a revisão da UI implementada (`<CHAVE_DO_ITEM>/revisao-de-ui.md`). Modelos prontos em `design/_modelos/`.
 
+### `brand/`
+Assets oficiais de identidade visual (logo, paleta de cores, tipografia, ícones) versionados no repositório. É o local que a pré-checagem obrigatória do modo Designer inspeciona antes de propor qualquer token, cor ou componente — o Designer nunca aproxima ou recria logo/ícone por conta própria. Se o produto ainda não tem identidade visual própria, a pasta pode ficar vazia (só com o `README.md`).
+
 ### `delivery/`
 Planejamento de sprint e artefatos de acompanhamento de entrega.
 
@@ -179,6 +182,7 @@ Os **modos do seu projeto** são fornecidos via `.bob/custom_modes.yaml`.
 │   ├── constituicao.md          # Princípios não-negociáveis do projeto (gerado pelo modo Governança)
 │   └── modelo-constituicao.md   # Modelo de constituição
 ├── backlog/ + backlog.md       # Backlogs por item de trabalho + índice
+├── brand/                       # Assets oficiais de identidade visual (logo, cores, tipografia, ícones)
 ├── delivery/                   # Planejamento de sprint
 ├── design/                      # Design system, specs de UI/UX e revisões de interface
 ├── discovery/                  # Artefatos de descoberta

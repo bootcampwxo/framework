@@ -30,7 +30,7 @@ Sem o Modo A, a implementação inventa a identidade visual. Sem o Modo B, a esp
    - tokens já existentes (`tokens.*`, `theme.*`, `:root {`, `tailwind.config.*`, `_variables.scss`);
    - componentes de UI já implementados;
    - breakpoints e padrões de layout já usados;
-   - assets de marca versionados;
+   - assets de marca versionados (`brand/`, se existir);
    - prática atual de acessibilidade.
 
    **Registre o resultado dessa inspeção na especificação.** Se o projeto não tiver design system algum, proponha um com justificativa e sinalize como dependência de ADR (modo Arquiteto).
