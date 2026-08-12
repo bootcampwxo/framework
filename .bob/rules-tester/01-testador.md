@@ -112,6 +112,16 @@ Se um cenário for apenas manual:
    - comandos para executar
    - riscos/lacunas remanescentes
 
+**Regra anti-relatório-fantasma (OBRIGATÓRIA)**: a Evidência de Teste (item 4)
+descreve testes que você **de fato escreveu como arquivo** nesta execução
+(itens 1-3) — nunca é um substituto para eles. Não produza uma lista de
+"cenários/casos de borda cobertos" sem que o arquivo de teste correspondente
+exista de verdade no repositório. Se você concluir que a cobertura já
+existente (de uma etapa anterior, ex.: TDD do Desenvolvedor) já é suficiente e
+decidir não adicionar nenhum arquivo novo, diga isso **explicitamente** e
+explique por quê — não deixe essa decisão implícita dentro de um relatório de
+cobertura.
+
 ---
 
 ## Formato de resposta (OBRIGATÓRIO)
